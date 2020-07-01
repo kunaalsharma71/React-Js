@@ -14,46 +14,51 @@ import {
   ModalBody,
   ModalHeader
 } from "reactstrap";
+import { Loading } from "./LoadingComponent";
 import { LocalForm, Errors, Control } from "react-redux-form";
 import { Link } from "react-router-dom";
-import { Loading } from './LoadingComponent';
 
-function RenderDish({ dish }) {
-  return (
-    <div className="col-12 col-md-5 m-1">
-      <Card>
-        <CardImg top src={dish.image} alt={dish.name} />
-        <CardBody>
-          <CardTitle>{dish.name}</CardTitle>
-          <CardText>{dish.description}</CardText>
-        </CardBody>
-      </Card>
-    </div>
-  );
+function RenderDish({ dish, isLoading, errMess }) {
+  if (isLoading) {
+    return (
+      <h4>
+        <Loading />
+      </h4>
+    );
+  } else if (errMess) {
+    return <h4>{errMess}</h4>;
+  } else {
+    return (
+      <div className="col-12 col-md-5 m-1">
+        <Card>
+          <CardImg top src={dish.image} alt={dish.name} />
+          <CardBody>
+            <CardTitle>{dish.name}</CardTitle>
+            <CardText>{dish.description}</CardText>
+          </CardBody>
+        </Card>
+      </div>
+    );
+  }
 }
 
 const required = val => val && val.length;
 const minLength = len => val => val && val.length >= len;
 const maxLength = len => val => !val || val.length <= len;
-
 class CommentForm extends React.Component {
   constructor(props) {
     super(props);
-
-    this.state = {
+     this.state = {
       isModalOpen: false
     };
-
     this.toggleModal = this.toggleModal.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
-
   toggleModal() {
     this.setState({
       isModalOpen: !this.state.isModalOpen
     });
   }
-
   handleSubmit(values) {
     this.props.addComment(
       this.props.dishId,
@@ -65,7 +70,6 @@ class CommentForm extends React.Component {
       isModalOpen: !this.state.isModalOpen
     });
   }
-
   render() {
     return (
       <div className="container">
@@ -112,7 +116,7 @@ class CommentForm extends React.Component {
                   model=".author"
                   show="touched"
                   messages={{
-                    required: "Required; ",
+                     required: "Required; ",
                     minLength: "Should be greater than 2 characters; ",
                     maxLength: "Should be less than 16 characters; "
                   }}
@@ -133,14 +137,13 @@ class CommentForm extends React.Component {
                   Submit
                 </Button>
               </Row>
-            </LocalForm>
+               </LocalForm>
           </ModalBody>
         </Modal>
       </div>
     );
   }
 }
-
 function RenderComments({ comments, dishId, addComment }) {
   if (comments != null)
     return (
@@ -169,26 +172,26 @@ function RenderComments({ comments, dishId, addComment }) {
 }
 
 const DishDetail = props => {
-  if (props.isLoaing) {
-    return(
+  if (props.isLoading) {
+    return (
       <div className="container">
         <div className="row">
           <Loading />
         </div>
       </div>
     );
-  }
-
-  else if (props.errMess){
-    return(
-    <div className="container">
+  } else if (props.errMess) {
+    return (
+      <div className="container">
         <div className="row">
           <h4>{props.errMess}</h4>
         </div>
       </div>
     );
+  } else if (props.dish == null) {
+    return <div></div>;
   }
-else if(props.dish != null)
+
   return (
     <div className="container">
       <div className="row">
@@ -204,7 +207,11 @@ else if(props.dish != null)
         </div>
       </div>
       <div className="row">
-        <RenderDish dish={props.dish} />
+      <RenderDish
+          dish={props.dish}
+          isLoading={props.isLoading}
+          errMess={props.errMess}
+        />
         <RenderComments
           comments={props.comments}
           dishId={props.dish.id}
@@ -214,5 +221,4 @@ else if(props.dish != null)
     </div>
   );
 };
-
 export default DishDetail;
